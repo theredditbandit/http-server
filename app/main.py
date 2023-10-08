@@ -23,12 +23,19 @@ def response_handler(data: bytes) -> bytes:
     Returns:
         bytes: HTTP response
     """
-    RESPONSE_MAP = {200: b"HTTP/1.1 200 OK\r\n\r\n", 404: b"HTTP/1.1 404 Not Found\r\n\r\n"}
-    HTTP_HEADER_MAP = {"req_line":0}
+    RESPONSE_MAP = {
+        200: b"HTTP/1.1 200 OK\r\n\r\n",
+        404: b"HTTP/1.1 404 Not Found\r\n\r\n",
+    }
+    HTTP_HEADER_MAP = {"req_line": 0}
     data = data.split(b"\r\n")
-    httpm, path, httpv= data[HTTP_HEADER_MAP["req_line"]].split()  # ['GET', '/index.html', 'HTTP/1.1']
+
+    _, path, _ = data[
+        HTTP_HEADER_MAP["req_line"]
+    ].split()  # ['GET', '/index.html', 'HTTP/1.1']
+
     response = ""
-    if path == "/":
+    if path.decode() == "/":
         response = RESPONSE_MAP[200]
     else:
         response = RESPONSE_MAP[404]
