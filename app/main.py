@@ -24,8 +24,9 @@ def response_handler(data: bytes) -> bytes:
         bytes: HTTP response
     """
     RESPONSE_MAP = {200: b"HTTP/1.1 200 OK\r\n\r\n", 404: b"HTTP/1.1 404 Not Found\r\n\r\n"}
-    print(data,)
-    httpm, path, httpv= data.strip().split()  # ['GET', '/index.html', 'HTTP/1.1']
+    HTTP_HEADER_MAP = {"req_line":0}
+    data = data.split(b"\r\n")
+    httpm, path, httpv= data[HTTP_HEADER_MAP["req_line"]].split()  # ['GET', '/index.html', 'HTTP/1.1']
     response = ""
     if path == "/":
         response = RESPONSE_MAP[200]
