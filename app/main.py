@@ -1,5 +1,5 @@
 import socket
-from libs.responses import RESPONSE
+from responses import RESPONSE
 def main() -> None:
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
     print("Server created!")
