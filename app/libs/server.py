@@ -34,15 +34,15 @@ class Server:
             HTTP_HEADER_MAP["req_line"]
         ].split()  # [b'GET', b'/index.html', b'HTTP/1.1']
 
-        resource :str = resource.decode()
+        resource: str = resource.decode()
         if resource == "/":
             response = f"{RESPONSE_MAP['status'][200]}{EOF}"
         elif resource.startswith("/echo"):
             content = resource.split("/", maxsplit=2)[-1]
             response = f"{RESPONSE_MAP['status'][200]}{DELIM}Content-Type: text/plain{DELIM}Content-Length: {len(content)}{EOF}{content}"
-        elif resource.startswith('/user-agent'):
+        elif resource.startswith("/user-agent"):
             user_agent = request[HTTP_HEADER_MAP["User-Agent"]]
-            _ , content = user_agent.decode().split(':')
+            _, content = user_agent.decode().split(":")
             content = content.strip()
             response = f"{RESPONSE_MAP['status'][200]}{DELIM}Content-Type: text/plain{DELIM}Content-Length: {len(content)}{EOF}{content}"
         else:
