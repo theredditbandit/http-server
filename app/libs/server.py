@@ -6,7 +6,7 @@ class Server:
     def __init__(self, host="localhost", port=4221):
         self.host = host
         self.port = port
-        print(f"Host :{host} and Port: {port}")
+        print(f"Host: {host} and Port: {port}")
         self.server_socket = socket.create_server((host, port), reuse_port=True)
         print("Server Started!")
 
@@ -29,20 +29,22 @@ class Server:
         Args:
             data (bytes): Request data
         """
-        request = request.split(DELIM)
+        request = request.split(DELIM.encode())
         _, path, _ = request[
             HTTP_HEADER_MAP["req_line"]
         ].split()  # [b'GET', b'/index.html', b'HTTP/1.1']
-        response = b""
+
         path = path.decode()
         if path == "/":
-            response = RESPONSE_MAP["status"][200] + EOF
-        elif path == "/echo":
-            print("handling echo")
+            response = f"{RESPONSE_MAP['status'][200]}{EOF}"
+        elif str(path).startswith("/echo"):
+            content = str(path).split("/", maxsplit=2)[-1]
+            response = f"{RESPONSE_MAP['status'][200]}{DELIM}Content-Type: text/plain{DELIM}Content-Length: {len(content)}{EOF}{content}"
         else:
-            response = RESPONSE_MAP["status"][404] + EOF
+            response = f"{RESPONSE_MAP['status'][404]}{EOF}"
 
         response = response.encode()
+        print(f"Response \n{response.decode()}")
         self.conn.send(response)
 
     def response_builder(self):
