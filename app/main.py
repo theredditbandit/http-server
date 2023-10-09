@@ -14,6 +14,18 @@ def main() -> None:
         conn.send(response)
 
 
+def byte_parser(data: bytes):
+    """
+    Parse binary data
+
+    Returns:
+        str: decoded string
+    """
+    return data.decode()
+
+def response_builder(code:int,body:str):
+    ...
+
 def response_handler(data: bytes) -> bytes:
     """Handles responses to TCP connections
 
@@ -24,21 +36,28 @@ def response_handler(data: bytes) -> bytes:
         bytes: HTTP response
     """
     RESPONSE_MAP = {
-        200: b"HTTP/1.1 200 OK\r\n\r\n",
-        404: b"HTTP/1.1 404 Not Found\r\n\r\n",
+        "status": {
+            200: "HTTP/1.1 200 OK",
+            404: "HTTP/1.1 404 Not Found",
+        },
+        "eof": "\r\n\r\n",
     }
+
     HTTP_HEADER_MAP = {"req_line": 0}
     data = data.split(b"\r\n")
-
     _, path, _ = data[
         HTTP_HEADER_MAP["req_line"]
     ].split()  # ['GET', '/index.html', 'HTTP/1.1']
 
-    response = ""
-    if path.decode() == "/":
-        response = RESPONSE_MAP[200]
+    response:bytes = b""
+    if byte_parser(path) == "/":
+        response = RESPONSE_MAP["status"][200] + RESPONSE_MAP["eof"]
+        response = response.encode()
+    elif byte_parser(path) == "/echo":
+        print("got echo")
     else:
-        response = RESPONSE_MAP[404]
+        response = RESPONSE_MAP["status"][404] + RESPONSE_MAP["eof"] 
+        response = response.encode()
 
     print("Responded with ", response)
     return response
