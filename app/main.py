@@ -2,9 +2,10 @@ from .libs.server import Server
 
 
 def main():
-    server = Server()
-    data = server.listen()
-    server.request_handler(data)
+    while True:
+        server = Server()
+        data = server.listen()
+        server.request_handler(data)
 
 
 if __name__ == "__main__":

@@ -16,7 +16,7 @@ class Server:
         Returns:
             bytes: The data received
         """
-        print("Listening for connection on port ", self.port)
+        print("Listening for connections . . .")
         self.conn, self.addr = self.server_socket.accept()
         print("Connected by", self.addr)
         data: bytes = self.conn.recv(1024)
@@ -50,10 +50,7 @@ class Server:
 
         response = response.encode()
         print(f"Response \n{response.decode()}")
-        self.conn.send(response)
-
-    def response_builder(self):
-        ...
+        self.conn.sendall(response)
 
     def send_request(self, request):
         """This is for testing the server
