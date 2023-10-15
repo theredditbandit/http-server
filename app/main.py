@@ -3,10 +3,6 @@ import asyncio
 
 
 def main():
-    # while True:
-    #     server = Server()
-    #     data = server.listen()
-    #     server.request_handler(data)
     server = Server()
     asyncio.run(server.start_server())
 
