@@ -5,7 +5,10 @@ from .libs.server.basicServer import Server
 
 
 def main():
-    server = Server()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--directory", help="Path to directory")
+    args = parser.parse_args()
+    server = Server(directory=args.directory)
     asyncio.run(server.start_server())
 
 
