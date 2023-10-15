@@ -1,4 +1,4 @@
-from .libs.server import Server
+from .libs.server.basicServer import Server
 
 
 def main():

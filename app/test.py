@@ -1,4 +1,4 @@
-from libs.server import Server
+from app.libs.server.basicServer import Server
 
 HOST = "localhost"  # Replace with your server's hostname or IP address
 PORT = 4221  # Replace with your server's port number

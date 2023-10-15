@@ -1,5 +1,6 @@
 import socket
-from .static.fields import *
+import asyncio
+from ..static.fields import *
 
 
 class Server:
