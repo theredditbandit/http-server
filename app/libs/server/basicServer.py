@@ -1,6 +1,7 @@
-import socket
 import asyncio
+import socket
 from asyncio.streams import StreamReader, StreamWriter
+
 from ..static.fields import *
 
 
