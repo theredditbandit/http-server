@@ -1,5 +1,6 @@
 import socket
 import asyncio
+from asyncio.streams import StreamReader, StreamWriter
 from ..static.fields import *
 
 
@@ -8,23 +9,8 @@ class Server:
         self.host = host
         self.port = port
         print(f"Host: {host} and Port: {port}")
-        self.server_socket = socket.create_server((host, port), reuse_port=True)
-        print("Server Started!")
 
-    def listen(self) -> bytes:
-        """listen for a TCP connection on self.port
-
-        Returns:
-            bytes: The data received
-        """
-        print("Listening for connections . . .")
-        self.conn, self.addr = self.server_socket.accept()
-        print("Connected by", self.addr)
-        data: bytes = self.conn.recv(1024)
-        print("Received data:\n", data.decode(), sep="\n")
-        return data
-
-    def request_handler(self, request: bytes):
+    async def response_handler(self, request: bytes, writer: StreamWriter) -> bytes:
         """Builds and sends a response to http requests per the request.
 
         Args:
@@ -49,9 +35,25 @@ class Server:
         else:
             response = f"{RESPONSE_MAP['status'][404]}{EOF}"
 
+        print(f"Response \n{response}")
         response = response.encode()
-        print(f"Response \n{response.decode()}")
-        self.conn.sendall(response)
+        writer.write(response)
+        await writer.drain()
+        writer.close()
+
+
+    async def request_handler(self, reader: StreamReader, writer: StreamWriter):
+        data: bytes = await reader.readuntil(EOF.encode())
+        await self.response_handler(data, writer)
+
+    async def start_server(self):
+        server = await asyncio.start_server(
+            self.request_handler, host=self.host, port=self.port
+        )
+        addr = server.sockets[0].getsockname()
+        print(f"Serving on {addr}")
+        async with server:
+            await server.serve_forever()
 
     def send_request(self, request):
         """This is for testing the server
@@ -62,6 +64,3 @@ class Server:
             s.sendall(request)
             data = s.recv(1024)
         return data
-
-    def __del__(self):
-        self.conn.close()
