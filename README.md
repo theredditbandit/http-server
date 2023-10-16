@@ -1,6 +1,6 @@
 # http-server
 
-A simple asynchronous http server implemented in python. 
+A simple asynchronous http server implemented in Python. 
 
 # Features
  - It can respond with a 200.
