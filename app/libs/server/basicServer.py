@@ -52,12 +52,12 @@ class Server:
                     response = f"{RESPONSE_MAP['status'][200]}{DELIM}Content-Type: {content_type}{DELIM}Content-Length: {len(content)}{EOF}{content}"
             else:
                 response = f"{RESPONSE_MAP['status'][404]}{EOF}"
-                
+
         elif resource.startswith("/files") and httpmethod == "POST":
             filename = resource.split("/", maxsplit=2)[-1]
             filepath = os.path.join(self.directory, filename)
-            data = splitreq[HTTP_HEADER_MAP['body']].decode()
-            with open(filepath,"w") as f:
+            data = splitreq[HTTP_HEADER_MAP["body"]].decode()
+            with open(filepath, "w") as f:
                 f.write(data)
             response = f'{RESPONSE_MAP["status"][201]}{EOF}'
 
@@ -74,8 +74,8 @@ class Server:
         # data: bytes = await reader.readuntil(EOF.encode())
         # await self.response_handler(data, writer)
         data = await reader.read(1024)
-        await self.response_handler(data,writer)
-        
+        await self.response_handler(data, writer)
+
     async def start_server(self):
         server = await asyncio.start_server(
             self.request_handler, host=self.host, port=self.port
