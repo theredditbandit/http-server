@@ -19,12 +19,13 @@ class Server:
         Args:
             data (bytes): Request data
         """
-        request = request.split(DELIM.encode())
-        _, resource, _ = request[
+        splitreq = request.split(DELIM.encode())
+        httpmethod, resource, _ = splitreq[
             HTTP_HEADER_MAP["req_line"]
         ].split()  # [b'GET', b'/index.html', b'HTTP/1.1']
 
         resource: str = resource.decode()
+        httpmethod: str = httpmethod.decode()
 
         if resource == "/":
             response = f"{RESPONSE_MAP['status'][200]}{EOF}"
@@ -34,13 +35,13 @@ class Server:
             response = f"{RESPONSE_MAP['status'][200]}{DELIM}Content-Type: {content_type}{DELIM}Content-Length: {len(content)}{EOF}{content}"
 
         elif resource.startswith("/user-agent"):
-            user_agent = request[HTTP_HEADER_MAP["User-Agent"]]
+            user_agent = splitreq[HTTP_HEADER_MAP["User-Agent"]]
             _, content = user_agent.decode().split(":")
             content = content.strip()
             content_type = "text/plain"
             response = f"{RESPONSE_MAP['status'][200]}{DELIM}Content-Type: {content_type}{DELIM}Content-Length: {len(content)}{EOF}{content}"
 
-        elif resource.startswith("/files"):
+        elif resource.startswith("/files") and httpmethod == "GET":
             filename = resource.split("/", maxsplit=2)[-1]
             filepath = os.path.join(self.directory, filename)
             content_type = "application/octet-stream"
@@ -52,6 +53,15 @@ class Server:
                     response = f"{RESPONSE_MAP['status'][200]}{DELIM}Content-Type: {content_type}{DELIM}Content-Length: {len(content)}{EOF}{content}"
             else:
                 response = f"{RESPONSE_MAP['status'][404]}{EOF}"
+                
+        elif resource.startswith("/files") and httpmethod == "POST":
+            filename = resource.split("/", maxsplit=2)[-1]
+            filepath = os.path.join(self.directory, filename)
+            data = splitreq[HTTP_HEADER_MAP['body']].decode()
+            print(data)
+            with open(filepath,"w") as f:
+                f.write(data)
+            response = f'{RESPONSE_MAP["status"][201]}{EOF}'
 
         else:
             response = f"{RESPONSE_MAP['status'][404]}{EOF}"
@@ -63,9 +73,11 @@ class Server:
         writer.close()
 
     async def request_handler(self, reader: StreamReader, writer: StreamWriter):
-        data: bytes = await reader.readuntil(EOF.encode())
-        await self.response_handler(data, writer)
-
+        # data: bytes = await reader.readuntil(EOF.encode())
+        # await self.response_handler(data, writer)
+        data = await reader.read(1024)
+        await self.response_handler(data,writer)
+        
     async def start_server(self):
         server = await asyncio.start_server(
             self.request_handler, host=self.host, port=self.port
