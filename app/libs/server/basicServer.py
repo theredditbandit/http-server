@@ -45,9 +45,8 @@ class Server:
             filename = resource.split("/", maxsplit=2)[-1]
             filepath = os.path.join(self.directory, filename)
             content_type = "application/octet-stream"
-            print(filepath)
             if os.path.exists(filepath):
-                print(f"{filename} exists in {self.directory}")
+                # print(f"{filename} exists in {self.directory}")
                 with open(filepath) as content:
                     content = content.readlines()[0]
                     response = f"{RESPONSE_MAP['status'][200]}{DELIM}Content-Type: {content_type}{DELIM}Content-Length: {len(content)}{EOF}{content}"
@@ -58,7 +57,6 @@ class Server:
             filename = resource.split("/", maxsplit=2)[-1]
             filepath = os.path.join(self.directory, filename)
             data = splitreq[HTTP_HEADER_MAP['body']].decode()
-            print(data)
             with open(filepath,"w") as f:
                 f.write(data)
             response = f'{RESPONSE_MAP["status"][201]}{EOF}'
